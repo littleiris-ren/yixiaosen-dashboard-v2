@@ -1,0 +1,883 @@
+<html lang="zh-CN"><head>
+  <title>医小森-区域 投放复盘看板 2026.3-5</title>
+  <link rel="icon" href="https://picasso-static.xiaohongshu.com/fe-platform/49d0aa573e1b645939ee59afef61f774d4a25652.png">
+<meta charset="UTF-8">
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+// fallback: 若 jsdelivr 不通，加载 unpkg
+if (typeof echarts === 'undefined') {
+  document.write('<script src="https://unpkg.com/echarts@5.4.3/dist/echarts.min.js"><\/script>');
+}
+</script>
+<style>
+:root{
+  --bg:#0a1628;--bg2:#102540;--card:#0f2347;--border:#1d3a66;
+  --primary:#3b82f6;--accent:#60a5fa;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;
+  --text:#e2e8f0;--text-dim:#94a3b8;--text-bright:#f1f5f9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:linear-gradient(180deg,#061226 0%,#0a1628 100%);color:var(--text);min-height:100vh;padding:24px;line-height:1.6}
+.container{max-width:1440px;margin:0 auto}
+.header{background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 100%);border-radius:16px;padding:32px;margin-bottom:24px;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.header h1{font-size:32px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-0.5px}
+.header .subtitle{color:#bfdbfe;font-size:14px;margin-bottom:16px}
+.meta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.meta-item{background:rgba(255,255,255,0.08);padding:12px 16px;border-radius:8px;backdrop-filter:blur(8px)}
+.meta-item .label{font-size:11px;color:#bfdbfe;text-transform:uppercase;letter-spacing:0.5px}
+.meta-item .value{font-size:14px;color:#fff;font-weight:600;margin-top:4px}
+.section{margin-bottom:32px}
+.section-title{font-size:20px;font-weight:700;color:var(--text-bright);margin-bottom:16px;padding-left:12px;border-left:4px solid var(--primary);display:flex;align-items:center;gap:8px}
+.section-subtitle{font-size:13px;color:var(--text-dim);font-weight:400;margin-left:8px}
+.cards{display:grid;gap:16px}
+.cards.cols-2{grid-template-columns:repeat(2,1fr)}
+.cards.cols-3{grid-template-columns:repeat(3,1fr)}
+.cards.cols-4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all 0.3s}
+.card:hover{border-color:var(--accent);box-shadow:0 4px 24px rgba(59,130,246,0.2)}
+.card h3{font-size:13px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.card .big{font-size:32px;font-weight:700;color:var(--text-bright);font-variant-numeric:tabular-nums}
+.card .unit{font-size:14px;color:var(--text-dim);margin-left:4px}
+.card .meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;justify-content:space-between}
+.card .delta-up{color:var(--success)}
+.card .delta-down{color:var(--danger)}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.chart-card .title{font-size:15px;font-weight:600;color:var(--text-bright);margin-bottom:4px}
+.chart-card .desc{font-size:12px;color:var(--text-dim);margin-bottom:16px}
+.chart{height:320px;width:100%}
+.chart-tall{height:420px}
+.insight{background:linear-gradient(135deg,rgba(59,130,246,0.1) 0%,rgba(96,165,250,0.05) 100%);border-left:4px solid var(--primary);border-radius:8px;padding:16px 20px;margin-bottom:16px;font-size:14px;line-height:1.7}
+.insight strong{color:var(--accent)}
+.insight.warning{background:linear-gradient(135deg,rgba(245,158,11,0.1) 0%,rgba(251,191,36,0.05) 100%);border-color:var(--warning)}
+.insight.warning strong{color:var(--warning)}
+.insight.danger{background:linear-gradient(135deg,rgba(239,68,68,0.1) 0%,rgba(248,113,113,0.05) 100%);border-color:var(--danger)}
+.insight.danger strong{color:var(--danger)}
+.insight.success{background:linear-gradient(135deg,rgba(16,185,129,0.1) 0%,rgba(52,211,153,0.05) 100%);border-color:var(--success)}
+.insight.success strong{color:var(--success)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+table th{background:rgba(59,130,246,0.1);color:var(--text-bright);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+table td{padding:10px 12px;border-bottom:1px solid rgba(29,58,102,0.5);color:var(--text)}
+table tr:hover td{background:rgba(59,130,246,0.05)}
+table .num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-info{background:rgba(59,130,246,0.2);color:var(--accent)}
+.tag-success{background:rgba(16,185,129,0.2);color:var(--success)}
+.tag-warn{background:rgba(245,158,11,0.2);color:var(--warning)}
+.tag-danger{background:rgba(239,68,68,0.2);color:var(--danger)}
+.tag-gray{background:rgba(148,163,184,0.2);color:var(--text-dim)}
+.action-list{list-style:none}
+.action-list li{padding:12px 16px;background:rgba(15,35,71,0.5);border-left:3px solid var(--primary);border-radius:4px;margin-bottom:8px;font-size:14px}
+.action-list li.priority-high{border-color:var(--danger)}
+.action-list li.priority-med{border-color:var(--warning)}
+.action-list li strong{color:var(--text-bright)}
+.acct-card{background:linear-gradient(135deg,var(--card) 0%,#11264a 100%);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.acct-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.acct-card .head .name{font-size:18px;font-weight:700;color:var(--text-bright)}
+.acct-card .head .stat{display:flex;gap:16px}
+.acct-card .head .stat span{font-size:13px;color:var(--text-dim)}
+.acct-card .head .stat strong{color:var(--accent);font-size:18px;font-variant-numeric:tabular-nums}
+.acct-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.acct-grid .block{background:rgba(10,22,40,0.5);border-radius:8px;padding:12px}
+.acct-grid .block h5{font-size:12px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.3px}
+.footer{text-align:center;color:var(--text-dim);font-size:12px;padding:24px;border-top:1px solid var(--border);margin-top:48px}
+.footer a{color:var(--accent);text-decoration:none}
+.word-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.word-list .word{background:rgba(59,130,246,0.15);color:var(--accent);padding:4px 10px;border-radius:14px;font-size:12px}
+.word-list .word.warn{background:rgba(245,158,11,0.15);color:var(--warning)}
+.word-list .word.new{background:rgba(16,185,129,0.15);color:var(--success)}
+.word-list .word .cost{margin-left:4px;color:var(--text-dim);font-size:10px}
+.note-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:480px;overflow-y:auto}
+.note-list .note-item{display:flex;align-items:flex-start;padding:10px 12px;background:rgba(255,255,255,0.03);border-left:3px solid var(--accent);border-radius:6px;transition:background .15s,transform .15s;text-decoration:none;color:inherit}
+.note-list .note-item:hover{background:rgba(59,130,246,0.08);transform:translateX(2px)}
+.note-list .note-item .rank{font-weight:700;color:var(--accent);min-width:28px;font-size:13px}
+.note-list .note-item .main{flex:1;min-width:0}
+.note-list .note-item .title{font-weight:600;font-size:13px;color:var(--text);line-height:1.4;margin-bottom:4px;word-break:break-word}
+.note-list .note-item .meta{font-size:11px;color:var(--text-dim);display:flex;flex-wrap:wrap;gap:8px}
+.note-list .note-item .meta .tag{padding:1px 6px;background:rgba(255,255,255,0.06);border-radius:3px}
+.note-list .note-item .meta .form-video{color:#a78bfa}
+.note-list .note-item .meta .form-image{color:#60a5fa}
+.note-list .note-item .stat{min-width:100px;text-align:right;font-size:12px}
+.note-list .note-item .stat .cost{font-weight:700;color:var(--accent);font-size:14px;display:block}
+.note-list .note-item .stat .lead{color:var(--success);font-size:11px}
+.note-list .note-item .arrow{margin-left:8px;color:var(--text-dim);font-size:14px;align-self:center}
+@media (max-width:1100px){
+  .cards.cols-4{grid-template-columns:repeat(2,1fr)}
+  .cards.cols-3{grid-template-columns:1fr}
+  .acct-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>🏥 医小森-区域 投放复盘</h1>
+  <div class="subtitle">2026.03.01 — 2026.05.15 ｜ 复盘周期 76 天 ｜ 医美区域客户深度诊断</div>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="label">Brandtag</div><div class="value">医小森-区域</div></div>
+    <div class="meta-item"><div class="label">销售组</div><div class="value">行业七部·七部医美非SKA</div></div>
+    <div class="meta-item"><div class="label">行业</div><div class="value">生服-医美机构-区域-华南</div></div>
+    <div class="meta-item"><div class="label">大盘对比</div><div class="value">三级赛道=区域（医美机构）</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">⭐ 核心结论<span class="section-subtitle">5 大问题、可执行 Action 摘要</span></div>
+  <div class="insight success">
+    <strong>✅ 整体趋势健康</strong> 日均流水从 3 月 9101 元 → 5 月 9948 元，连续 3 月正增长，<strong>留资成本下降 11.6%</strong>（581→513元），效率持续优化。综合咨询分 3.6 处于中等偏上水平。
+  </div>
+  <div class="insight warning">
+    <strong>⚠️ 场域结构偏科严重</strong> 信息流占比 <strong>69.7%</strong>（大盘仅 46.7%），<strong>搜索仅 25.9%</strong>（大盘 35.2%）— 搜索场域被严重低估，且本品搜索 CPL 425 元已优于大盘（431 元），<strong>是当前 ROI 最高、最值得放大的场域</strong>。
+  </div>
+  <div class="insight danger">
+    <strong>🔴 搜索词包结构问题最大</strong> 1185 个搜索词中 <strong>「智能搭建词包」占 56.2% 消耗（4.0w）</strong>，52% 的人工词零消耗（出价无跑量），而大盘 Top 100 真实热搜词本品仅命中 4 个。词包扩展空间巨大。
+  </div>
+  <div class="insight warning">
+    <strong>⚠️ 内容形式与大盘背道而驰</strong> 本品 Top 50 笔记图文占 69%，但大盘视频占 66%。视频笔记产能不足是当前内容侧最显著的结构问题，需要在不影响品项聚焦的前提下补齐视频形态。
+  </div>
+  <div class="insight danger">
+    <strong> 医小森主体回复效率最差</strong> 平均回复时长 27.51 分钟（医小森元气 7.48min / 深圳元气 8.63min）、30s回复率仅 61.3%（其他两个主体 81.5%/86.2%），咨询分 3.2（最低），影响留资链路。
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">📊 一、整体投放概况</div>
+  <div class="cards cols-4">
+    <div class="card">
+      <h3>总流水</h3>
+      <div class="big">72.0<span class="unit">万</span></div>
+      <div class="meta"><span>日均</span><span class="delta-up">¥9,479</span></div>
+    </div>
+    <div class="card">
+      <h3>私信进线量</h3>
+      <div class="big">2,329</div>
+      <div class="meta"><span>日均</span><span>30.6 / 天</span></div>
+    </div>
+    <div class="card">
+      <h3>留资总数</h3>
+      <div class="big">1,277</div>
+      <div class="meta"><span>进线留资率</span><span class="delta-up">54.8%</span></div>
+    </div>
+    <div class="card">
+      <h3>留资成本</h3>
+      <div class="big">¥544</div>
+      <div class="meta"><span>5月环比</span><span class="delta-up">-10.7%</span></div>
+    </div>
+  </div>
+
+  <div class="cards cols-2" style="margin-top:16px">
+    <div class="chart-card">
+      <div class="title">📈 月度流水趋势（本品 vs 大盘）</div>
+      <div class="desc">本品 76 天稳健爬升，5月已突破日均 1w；大盘同步上涨</div>
+      <div id="chart_trend" class="chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title">💰 留资成本月度对比</div>
+      <div class="desc">本品成本持续下降中，距离大盘水位还有约 90 元差距，仍有优化空间</div>
+      <div id="chart_cost" class="chart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">🏢 二、分主体投放数据概览<span class="section-subtitle">4 个广告主主体拆分</span></div>
+  <div class="chart-card" style="margin-bottom:16px">
+    <div class="title">主体级核心指标对比</div>
+    <table>
+      <thead>
+        <tr><th>主体</th><th class="num">流水(¥)</th><th class="num">占比</th><th class="num">进线</th><th class="num">留资</th><th class="num">留资率</th><th class="num">留资成本</th><th class="num">CTR</th><th>评级</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>医小森元气</strong></td><td class="num">303,494</td><td class="num">42.1%</td><td class="num">862</td><td class="num">487</td><td class="num">56.5%</td><td class="num">¥596.8</td><td class="num">3.89%</td><td><span class="tag tag-info">主力</span></td></tr>
+        <tr><td><strong>医小森</strong></td><td class="num">186,251</td><td class="num">25.9%</td><td class="num">730</td><td class="num">336</td><td class="num">46.0%</td><td class="num">¥554.1</td><td class="num">4.22%</td><td><span class="tag tag-warn">回复效率差</span></td></tr>
+        <tr><td><strong>深圳元气医疗美容</strong></td><td class="num">148,597</td><td class="num">20.6%</td><td class="num">485</td><td class="num">298</td><td class="num">61.4%</td><td class="num">¥480.9</td><td class="num">3.22%</td><td><span class="tag tag-success">成本最优</span></td></tr>
+        <tr><td><strong>医小森花漾</strong></td><td class="num">81,771</td><td class="num">11.4%</td><td class="num">252</td><td class="num">156</td><td class="num">61.9%</td><td class="num">¥512.5</td><td class="num">4.58%</td><td><span class="tag tag-info">CTR最高</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cards cols-2">
+    <div class="chart-card">
+      <div class="title">主体流水占比</div>
+      <div id="chart_subject" class="chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title">主体留资率 vs 留资成本</div>
+      <div id="chart_subject_eff" class="chart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">🎯 三、投放结构分析<span class="section-subtitle">场域 / 内容形式 / 优化目标</span></div>
+  <div class="insight warning">
+    <strong>⚠️ 场域偏科严重，搜索是核心增量方向</strong> 搜索场域本品仅占 25.9%（大盘 35.2%），但 CPL 425 元已优于大盘 431 元 —— <strong>搜索是 ROI 最高、最值得放大的场域</strong>。建议把搜索预算占比从 26% 提升至 35-40%（日均从 ¥2401 → ¥3500），结合下方第五章的词包重构同步推进。
+  </div>
+  <div class="cards cols-3">
+    <div class="chart-card">
+      <div class="title">📍 场域分布（仅 3 大场域）</div>
+      <div class="desc">信息流/搜索/视频内流</div>
+      <div id="chart_field" class="chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title"> 内容形式（本品 vs 大盘）</div>
+      <div class="desc">本品视频占比仅 30.6%，大盘 66.2%</div>
+      <div id="chart_form" class="chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title">🎯 优化目标结构</div>
+      <div class="desc">私信开口量为主，留资量留资成本更低</div>
+      <div id="chart_opt" class="chart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title"> 四、接待效率分析<span class="section-subtitle">私信回复效率 + 配置</span></div>
+  <div class="insight danger">
+    <strong>🔴 重点问题：医小森主体回复严重拖后腿</strong> 平均回复时长 <strong>27.51 分钟</strong>（医小森元气 7.48min、深圳元气 8.63min），30s回复率仅 61.3%（其他主体 81.5%/86.2%），1h超时回复率高达 15.9%（其他主体 3.6%/3.3%），咨询分 3.2 为最低分。需立刻排查值班/AI 客服配置。
+  </div>
+  <div class="insight warning">
+    <strong>️ 配置缺失</strong> 医小森元气未配欢迎语和特殊时段欢迎语；医小森/花漾未配特殊时段欢迎语。所有主体均使用「快商通AI客服」三方IM，<strong>但未启用私信通AI助手</strong>，建议接入私信通 AI 提升首响率。
+  </div>
+  <div class="cards cols-2">
+    <div class="chart-card">
+      <div class="title"> 主体级回复效率</div>
+      <div class="desc">医小森的 30s 回复率明显落后</div>
+      <div id="chart_reply" class="chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title">️ 平均回复时长 + 咨询分</div>
+      <div class="desc">医小森 27.5min 远高于其他主体</div>
+      <div id="chart_reply2" class="chart"></div>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-top:16px">
+    <div class="title">📋 私信基本配置（按企业号账号）</div>
+    <table>
+      <thead><tr><th>企业号</th><th>私信通AI助手</th><th>三方IM</th><th>欢迎语</th><th>特殊时段欢迎语</th><th>快捷菜单</th><th>评估</th></tr></thead>
+      <tbody>
+        <tr><td>医小森元气</td><td><span class="tag tag-danger">未启用</span></td><td>快商通</td><td><span class="tag tag-danger">未配</span></td><td><span class="tag tag-danger">未配</span></td><td>✅</td><td><span class="tag tag-danger">3 项缺失</span></td></tr>
+        <tr><td>医小森</td><td><span class="tag tag-danger">未启用</span></td><td>快商通</td><td>✅</td><td><span class="tag tag-danger">未配</span></td><td>✅</td><td><span class="tag tag-warn">2 项缺失</span></td></tr>
+        <tr><td>深圳元气医疗美容</td><td><span class="tag tag-danger">未启用</span></td><td>快商通</td><td>✅</td><td>✅</td><td>✅</td><td><span class="tag tag-warn">1 项缺失</span></td></tr>
+        <tr><td>医小森花漾</td><td><span class="tag tag-danger">未启用</span></td><td>快商通</td><td>✅</td><td><span class="tag tag-danger">未配</span></td><td>✅</td><td><span class="tag tag-warn">2 项缺失</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">🔎 五、搜索运营深度分析<span class="section-subtitle">本品搜索词诊断 + 大盘热搜词包推荐</span></div>
+  <div class="insight danger">
+    <strong> 搜索词包结构严重问题</strong> 本品 1185 个搜索词中：① <strong>「智能搭建词包」占 56.2% 消耗</strong>（4.02w），无法明细化优化；② <strong>52% 的人工词（621/1185）零消耗</strong>，出价后无跑量；③ 跑量人工词中混入大量噪音词（如「12」「14」「24岁文案生日」「2026新款美甲」「ysl」），与医美业务无关。
+  </div>
+  <div class="insight warning">
+    <strong>⚠️ 大盘热搜命中率极低</strong> 大盘医美区域 Top 100 真实热搜词中，本品<strong>仅命中 4 个</strong>。大盘主流方向是「品牌产品词（塑妍萃/濡白天使/乔雅登/伊妍仕）+ 项目词（法令纹/超声炮/超声刀）+ 医生人名词」，本品当前主要靠「品项操作词（do唇/丰唇/Onda）+ 数字暗号词（12/14）」。
+  </div>
+
+  <div class="cards cols-3">
+    <div class="card">
+      <h3>本品搜索词总数</h3>
+      <div class="big">1,185</div>
+      <div class="meta"><span>智能搭建占比</span><span class="delta-down">56.2%</span></div>
+    </div>
+    <div class="card">
+      <h3>零消耗词数</h3>
+      <div class="big">621<span class="unit">个</span></div>
+      <div class="meta"><span>占比</span><span class="delta-down">52.4%</span></div>
+    </div>
+    <div class="card">
+      <h3>大盘 Top100 命中</h3>
+      <div class="big">4<span class="unit">/100</span></div>
+      <div class="meta"><span>命中率</span><span class="delta-down">4%</span></div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:16px">
+    <div class="title">🔥 本品 Top 20 跑量搜索词</div>
+    <div class="desc">智能搭建词包占用过多消耗，真实跑量词集中在 ONDA / 丰唇 / Do唇 / M唇</div>
+    <div id="chart_self_words" class="chart chart-tall"></div>
+  </div>
+
+  <div class="insight" style="margin-top:16px">
+    <strong> 大盘热搜词对标（按 5 大品项分别对照）</strong> 各机构经营品项不同，直接拉总盘 Top 热搜词意义有限。下面按医小森-区域实际在做的 5 大品项，分别对标大盘医美区域内的品项热搜词 Top 20，作为该品项的「词包扩词参考」。
+  </div>
+
+  <div class="cards cols-2" style="margin-top:16px">
+    <div class="chart-card">
+      <div class="title">💋 品项①：注射-口周/丰唇 Top 20 大盘热搜词</div>
+      <div class="desc">关键词匹配：唇 / 嘴 / 丰唇 / 口周</div>
+      <div id="chart_cat1_words" class="chart chart-tall"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title">👁 品项②：注射-卧蚕 Top 20 大盘热搜词</div>
+      <div class="desc">关键词匹配：卧蚕</div>
+      <div id="chart_cat2_words" class="chart chart-tall"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title"> 品项③：手术/能量-面部提升 Top 20 大盘热搜词</div>
+      <div class="desc">关键词匹配：面部提升 / 提拉 / 抗衰（已剔除热玛吉/超声炮/超声刀/热提升）</div>
+      <div id="chart_cat3_words" class="chart chart-tall"></div>
+    </div>
+    <div class="chart-card">
+      <div class="title">💉 品项④：光电-黄金微针 Top 20 大盘热搜词</div>
+      <div class="desc">关键词匹配：黄金微针 / 微针</div>
+      <div id="chart_cat4_words" class="chart chart-tall"></div>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-top:16px">
+    <div class="title">🌟 品项⑤：光电-ONDA Top 20 大盘热搜词</div>
+    <div class="desc">关键词匹配：ONDA / Onda / onda</div>
+    <div id="chart_cat5_words" class="chart chart-tall"></div>
+  </div>
+
+  <div class="chart-card" style="margin-top:16px">
+    <div class="title">📂 搜索词诊断 4 维明细（Excel 附件 4 个 Sheet）</div>
+    <table>
+      <thead><tr><th>Sheet</th><th>内容</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>Sheet1</td><td>本品搜索词全量明细</td><td>按消耗排序，含 SOV 与排名，供完整诊断</td></tr>
+        <tr><td>Sheet2</td><td>大盘热搜词包推荐</td><td>剔除「智能搭建词包」后的真实热词，标记是否已投</td></tr>
+        <tr><td>Sheet3</td><td>低 SOV 高消耗词（待优化）</td><td>SOV&lt;0.5 但消耗&gt;10 的词，建议加价或优化创意</td></tr>
+        <tr><td>Sheet4</td><td>零消耗词清理建议</td><td>出价但无跑量的人工词，建议批量下线或重做出价</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">👤 六、头部账号深度诊断<span class="section-subtitle">主体级笔记内容 + 投放结构 + 营销建议</span></div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">①  医小森元气 <span class="tag tag-info">总流水第 1（42.1%）</span></div>
+      <div class="stat">
+        <span>流水 <strong>¥30.3w</strong></span>
+        <span>留资 <strong>487</strong></span>
+        <span>CPL <strong>¥596.8</strong></span>
+        <span>子账户 <strong>4</strong></span>
+      </div>
+    </div>
+    <div class="acct-grid">
+      <div class="block">
+        <h5>📊 投放结构</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>4 个子账户</strong>：深圳总部（日均 1919）/ YX-1（1576）/ YX-2（677）/ 深圳陈兰｜YOUNGER（337）<br>
+          <strong>场域分布</strong>：信息流 64%（11.0w）+ 搜索 27%（8.1w）+ 视频内流 8.1%（2.5w）<br>
+          <strong>优化目标</strong>：私信开口量 50% + 私信留资量 41% + 互动量 9%<br>
+          <strong>计划基建</strong>：日均 11 个在投计划，笔记 ARPA 65-121 元（其中 YX-2 偏低 65 元）
+        </p>
+      </div>
+      <div class="block">
+        <h5>📝 头部笔记内容（含 23 篇 Top50）</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>爆款方向</strong>：👄唇部品项（do唇/M唇/丰唇）+ 面部提升抗衰<br>
+          <strong>典型 Top 笔记</strong>：<br>
+          ·「深圳新年3位数get元气感👄❗」 ¥26487（图文）<br>
+          ·「深圳面部提升抗衰性价比超夯！」 ¥22019（图文）<br>
+          ·「do👄模板|超NEW」 搜索 ¥11882 CTR 14.2%<br>
+          ·「面部提升松弛垮脸的抗衰思路」 ¥12043 CTR 3.25%
+        </p>
+      </div>
+    </div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      🎯 <strong>营销建议</strong>：
+       <strong>YX-2 子账户笔记 ARPA 偏低（65元）</strong>，建议梳理在投笔记结构，淘汰低效笔记；
+      ② <strong>视频笔记仅占 26%（6/23）</strong>，对标大盘 66% 视频占比，建议视频笔记数量翻倍；
+      ③ 「深圳陈兰｜YOUNGER」KOS 账号当前日均仅 ¥337，建议复制其他子账户的内容模板做规模化承接，提升 KOS 账号产能；
+      ④ <strong>搜索内容渗透充分（27%）</strong>，但仅 14% 的 CTR 远高于均值，建议复制成功模板做更多搜索专属笔记。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">②  医小森 <span class="tag tag-info">总流水第 2（25.9%）</span><span class="tag tag-danger">回复效率差</span></div>
+      <div class="stat">
+        <span>流水 <strong>¥18.6w</strong></span>
+        <span>留资 <strong>336</strong></span>
+        <span>CPL <strong>¥554.1</strong></span>
+        <span>子账户 <strong>4</strong></span>
+      </div>
+    </div>
+    <div class="acct-grid">
+      <div class="block">
+        <h5>📊 投放结构</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>4 个子账户</strong>：广州医小森医美（1933）/ HomeSpa尖沙咀ondapro（1177）/ 医小森6（797）/ 医小森5（347）<br>
+          <strong>场域分布</strong>：信息流 77%（14.3w）+ 搜索 20%（3.8w）+ 视频内流 3%（0.5w）<br>
+          <strong>优化目标</strong>：私信开口量 65% + 私信留资量 34%<br>
+          <strong>计划基建</strong>：日均 11.5 个在投计划，但 HomeSpa 单计划 ARPA 高达 1190 元（仅 1 个计划支撑跑量）
+        </p>
+      </div>
+      <div class="block">
+        <h5>📝 头部笔记内容（含 13 篇 Top50）</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>爆款方向</strong>：娇兰专场（活动+定价）+ ONDA pro 全身 + 唇部品项<br>
+          <strong>典型 Top 笔记</strong>：<br>
+          ·「卷！娇兰专场仅需三位数」 ¥25107（图文，活动定价）<br>
+          ·「爆火ONDA pro 全身4xxx拿下」 ¥22839 CTR 3.22%<br>
+          ·「肉欲唇展示～唇形不用靠手挤」 ¥17539（视频 CTR 3.52%）<br>
+          ·「👄口周年轻态」 搜索 ¥7537 CTR 13.78%
+        </p>
+      </div>
+    </div>
+    <div class="insight danger" style="margin-top:12px;font-size:13px">
+      🚨 <strong>营销建议（紧急）</strong>：
+      ① <strong>立即排查回复效率</strong>：平均回复 27.5 分钟、30s 回复率仅 61.3%，是 4 个主体中咨询分最低（3.2），可能损失 30%+ 留资；
+      ② <strong>香港 HomeSpa 仅 1 个计划支撑¥1177 日均</strong>，建议增加 2-3 个计划做风险对冲；
+      ③ 视频笔记仅 1/13（图文 92%），急需提升视频笔记产出；
+      ④ 娇兰活动笔记爆款表现好，建议<strong>固化「品牌联名+活动定价」内容模板</strong>，做月度系列化产出。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">  深圳元气医疗美容 <span class="tag tag-success">成本最优</span></div>
+      <div class="stat">
+        <span>流水 <strong>¥14.9w</strong></span>
+        <span>留资 <strong>298</strong></span>
+        <span>CPL <strong>¥480.9</strong></span>
+        <span>子账户 <strong>1</strong></span>
+      </div>
+    </div>
+    <div class="acct-grid">
+      <div class="block">
+        <h5>📊 投放结构</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>单子账户</strong>「拾光宝盒（深圳元气医疗美容）」（日均 1950 元）<br>
+          <strong>场域分布</strong>：信息流 79%（11.8w）+ 搜索 13%（2.0w）+ 视频内流 6.7%（1.0w）<br>
+          <strong>优化目标</strong>：私信开口量 48% + 私信留资量 33% + 互动量 4%<br>
+          <strong>计划基建</strong>：日均 5.4 计划 + 21.5 笔记，笔记 ARPA 91 元（健康）<br>
+          <strong>留资率 61.4%</strong>，是 4 主体中第二高
+        </p>
+      </div>
+      <div class="block">
+        <h5>📝 头部笔记内容（含 8 篇 Top50）</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>爆款方向</strong>：唇部品项 + 区域(深圳)定向 + 视频笔记表现优秀<br>
+          <strong>典型 Top 笔记</strong>：<br>
+          ·「1ml打造妈生肉欲👄」 <strong>¥57933 CTR 3.02%（全局 Top1）</strong> 视频<br>
+          ·「深圳do记得先拿这300」 ¥15713（图文，地域+优惠）<br>
+          ·「深圳年前瑞蓝do👄优惠！」 ¥9243（图文，活动）<br>
+          ·「少女感满满的嘴巴，拿捏住你了吗？」 ¥6018 视频 CTR 3.09%
+        </p>
+      </div>
+    </div>
+    <div class="insight success" style="margin-top:12px;font-size:13px">
+      ⭐ <strong>营销建议（最佳实践，可复制）</strong>：
+      ① <strong>视频/图文笔记比例 4:4 健康均衡</strong>，与大盘趋势对齐，是其他主体的标杆；
+      ② <strong>「妈生肉欲」单笔记跑出 ¥5.8w 流水</strong>，建议总结成功要素（人群定位+视频镜头+话术）做 SOP 横向赋能其他主体；
+      ③ 单子账户已支撑 1950 元日均，建议<strong>克隆开 1-2 个新子账户</strong>做不同卖点测试，进一步放大规模；
+      ④ <strong>私信配置最完整</strong>（欢迎语+特殊时段+快捷菜单全配置），但回复 8.63 分钟仍有改善空间，建议接入私信通 AI 助手做兜底首响。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">④  医小森花漾 <span class="tag tag-success">CTR 最高 4.58%</span></div>
+      <div class="stat">
+        <span>流水 <strong>¥8.2w</strong></span>
+        <span>留资 <strong>156</strong></span>
+        <span>CPL <strong>¥512.5</strong></span>
+        <span>子账户 <strong>2</strong></span>
+      </div>
+    </div>
+    <div class="acct-grid">
+      <div class="block">
+        <h5>📊 投放结构</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>2 个子账户</strong>：拾光宝盒（深圳花漾2）（1310）/ 变美区 lucky（714）<br>
+          <strong>场域分布</strong>：信息流 54%（4.4w）+ 搜索 38%（3.1w）+ 视频内流 8%（0.6w）<br>
+          <strong>优化目标</strong>：私信开口量 55% + 私信留资量 37%<br>
+          <strong>计划基建</strong>：日均 5.4 计划 + 27.6 笔记（最丰富），但笔记 ARPA 47 元（偏低）<br>
+          <strong>留资率 61.9%</strong> 是 4 主体中最高
+        </p>
+      </div>
+      <div class="block">
+        <h5> 头部笔记内容（含 6 篇 Top50）</h5>
+        <p style="font-size:13px;line-height:1.8">
+          <strong>爆款方向</strong>：唇部品项（M唇/丰唇）+ 季节性活动<br>
+          <strong>典型 Top 笔记</strong>：<br>
+          ·「5月变美季｜这些医美项目真的值哭了」 搜索 ¥9073 CTR 9.74%<br>
+          ·「模糊的画质 清晰的beauty👄」 ¥7860 视频<br>
+          ·「调整歪唇丰唇丨丰唇模板」 ¥6090 视频<br>
+          ·「M唇」 ¥267（搜索高 SOV 关键词）
+        </p>
+      </div>
+    </div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      🎯 <strong>营销建议</strong>：
+      ① <strong>笔记数量最丰富（27.6/日）但 ARPA 仅 47 元</strong>，存在笔记冗余，建议优化笔记池，淘汰低效笔记；
+      ② <strong>搜索占比 38% 最高且 CTR 表现好</strong>，建议复制「5月变美季」类节点活动笔记 + 搜索内容协同模板；
+      ③ 「变美区 lucky」是 KOS 账号，<strong>1 个计划 1 个笔记单跑¥714/天</strong>，建议作为高质量 KOS 账号做内容 IP 化运营，逐步开多个计划做精细化承接；
+      ④ 季节性主题笔记表现好，建议提前规划 6月/暑期/双11 节点内容产线。
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">📝 七、头部笔记内容分析 + 大盘同品类爆款对标<span class="section-subtitle">按 5 大品项分别拉爆款，做品项内对标</span></div>
+
+  <div class="chart-card" style="margin-bottom:16px">
+    <div class="title">🏆 本品 Top 15 跑量笔记</div>
+    <div id="chart_self_notes_top" class="note-list"></div>
+  </div>
+
+  <div class="insight">
+    <strong> 大盘同品类爆款笔记对标（按 5 大品项分别拉 Top 15）</strong> 各机构经营品项不同，拉总盘 Top 笔记意义有限。下面按医小森-区域实际在做的 5 大品项，分别拉对应品项的大盘爆款笔记，做品项内的内容形式/标题模板/留资能力对标。
+  </div>
+
+  <div class="acct-card" style="margin-top:16px">
+    <div class="head">
+      <div class="name">💋 品项①：注射-口周/丰唇</div>
+      <div class="stat"><span>本品已有强势品项</span></div>
+    </div>
+    <div id="chart_cat1_notes" class="note-list"></div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      <strong>共性观察</strong>：大盘 Top 笔记 <strong>视频笔记占绝对主导</strong>，标题强调具体技术/数字效果（如「1ml 拉出鼻唇角」「7.5mm平扇+幼态卧蚕」「30 分钟口周提升」），且常带「实录/素人/直击」等真实感词汇。<br>
+      <strong>本品对照</strong>：医小森-区域在该品项已是绝对强项（相关笔记包揽本品 Top 20），但视频比例偏低，建议把现有图文爆款（如「妈生肉欲👄」¥5.8w）改造成视频版本，并采用「素人 do 唇实录」「ml 数量 + 效果数字」类标题模板。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">👁 品项②：注射-卧蚕</div>
+      <div class="stat"><span>本品已有持续投入</span></div>
+    </div>
+    <div id="chart_cat2_notes" class="note-list"></div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      <strong>共性观察</strong>：大盘卧蚕笔记 <strong>留资能力极强</strong>（Top 1「7.5mm平扇+幼态卧蚕」¥29015 流水带 216 留资，CPL¥134），常组合「双眼皮 + 卧蚕」做眼部综合方案，标题用「自由/灵动/天生」等情绪词。<br>
+      <strong>本品对照</strong>：医小森「do卧蚕」¥870 消耗 SOV 0.82，主要在搜索词覆盖，但内容侧明显薄弱。建议复制「双眼皮 + 卧蚕」组合卖点 + 视频笔记打法，承接搜索流量。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">⚡ 品项③：手术/能量-面部提升</div>
+      <div class="stat"><span>本品弱品项，待发力</span></div>
+    </div>
+    <div id="chart_cat3_notes" class="note-list"></div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      <strong>共性观察</strong>：大盘头部品类（已剔除热玛吉/超声炮/超声刀），<strong>单条笔记流水可达¥9w+</strong>，几乎全是视频笔记。Top 模板：① 痛点对症型（「青岛面部提升｜改善松垂垮打造皮贴骨高智脸」「30岁垮脸紧致提升抗衰新思路」「35+抗衰艾维岚 7 条韧带打法」）② 全流程实拍型（「全网首发面部提升全过程」¥8.5w 流水带 608 留资，CPL¥140 极致优）③ 真人种草型（「被闺蜜彻底种草了垮脸面部提升」）。<br>
+      <strong>本品对照</strong>：医小森「面部提升松弛垮脸」「面部提升抗衰性价比」是 Top 笔记中已有的尝试方向，但流水量级仅¥1-2w（vs 大盘¥9w+），有 5-10 倍的放大空间。建议复用大盘高留资模板：① 「全过程实拍 / live 直出」类视频提升信任感（大盘 CPL¥140 级别）；② 把 ONDA 强势仪器词嫁接到「面部提升」内容线，做「ONDA + 面部提升」专题系列。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">💉 品项④：光电-黄金微针</div>
+      <div class="stat"><span>本品未投入</span></div>
+    </div>
+    <div id="chart_cat4_notes" class="note-list"></div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      <strong>共性观察</strong>：黄金微针是大盘中等热度品类，Top 笔记单条流水¥3-8w，<strong>多卖点交叉</strong>（祛痘+缩毛孔+提升+祛皱），标题套路：① 反向钩子（「就用来祛痘缩毛孔？你亏大了！」）② 限时优惠（「3 次卡特惠」「买3赠9」）。<br>
+      <strong>本品对照</strong>：医小森-区域<strong>目前未涉及该品项</strong>。如果未来要扩品项考虑黄金微针，可作为本品 5 大品项之外的补充测试方向；当前阶段建议聚焦已有强势品项。
+    </div>
+  </div>
+
+  <div class="acct-card">
+    <div class="head">
+      <div class="name">🌟 品项⑤：光电-ONDA</div>
+      <div class="stat"><span>本品强势品项</span></div>
+    </div>
+    <div id="chart_cat5_notes" class="note-list"></div>
+    <div class="insight" style="margin-top:12px;font-size:13px">
+      <strong>共性观察</strong>：ONDA 是大盘热门光电品类（搜索词「onda瘦腿/onda面部」消耗领先），Top 笔记模板：① 代际升级（「第三代 onda pro」）② 地域 + 价格（「西安/厦门/郑州」 + 价格定位）③ 部位卖点（「肉脸天菜」「年后开工福利」）。本品「爆火 ONDA pro 全身 4xxx 拿下」（¥21,241、留资 65）已经在大盘 Top 2 位置。<br>
+      <strong>本品对照</strong>：医小森 ONDA 这条线<strong>已经做对了</strong>，建议继续扩大 ONDA 矩阵：① 复用其他机构的部位卖点（瘦腿/瘦大腿/双下巴/面部）；② 香港 onda 钛提升是本品独家强势词，可独立做内容线；③ 搜索词「onda」家族大盘还有大量未投词。
+    </div>
+  </div>
+
+  <div class="insight success" style="margin-top:16px">
+    <strong>💡 品项级内容策略升级建议</strong>：<br>
+    1. <strong>视频笔记产能翻倍</strong>：5 大品项的大盘爆款 95% 都是视频，本品 4 主体视频占比 31% → 50%+，重点是把现有图文爆款改造成视频版本<br>
+    2. <strong>口周/丰唇</strong>：本品强项，需引入「素人实录」「ml 数量 + 效果数字」类视频模板放大留资<br>
+    3. <strong>卧蚕</strong>：本品已有搜索流量但内容承接薄弱，建议补「双眼皮 + 卧蚕」组合卖点视频<br>
+    4. <strong>面部提升</strong>：本品最大潜力品项，已有内容尝试但量级仅¥1-2w（大盘¥10w+），建议嫁接 ONDA 仪器优势做「ONDA + 面部提升」专题<br>
+    5. <strong>ONDA</strong>：已是大盘 Top 2 位置，继续放大；扩充部位卖点（瘦腿/瘦大腿/双下巴）和地域专属词
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">✅ 八、行动清单（按优先级）</div>
+  <ul class="action-list">
+    <li class="priority-high">
+      <strong> P0 紧急｜医小森主体接待效率排查</strong><br>
+      平均回复 27.5min、30s 回复率 61.3%、咨询分 3.2 全部最差，立即排查值班排班 + 接入私信通 AI 助手做兜底首响。
+      <br><span class="tag tag-warn">预期效果</span> 留资率提升 5-10%，月新增留资 30+
+    </li>
+    <li class="priority-high">
+      <strong> P0 紧急｜搜索词包重构（最大优化机会）</strong><br>
+       下线 621 个零消耗人工词；② 删除噪音词（12/14/ysl/2026新款美甲）；
+      ③ <strong>新增 40+ 大盘热搜词</strong>（详见附件 Sheet2）：塑妍萃、濡白天使、艾维岚、超声炮、面部提升等品项词；
+      ④ 智能搭建词包占比从 56% 控制到 30% 以下，给精准词留预算。
+      <br><span class="tag tag-warn">预期效果</span> 搜索场域 CPL 下降 10-15%（425→370），日均流水增量¥500+
+    </li>
+    <li class="priority-high">
+      <strong>🔴 P0 紧急｜搜索场域放大（ROI 最高）</strong><br>
+      当前搜索占比 25.9%（vs 大盘 35.2%），但 CPL 425 元已优于大盘 431 元，是 ROI 最高的场域。建议：
+      ① 搜索预算从日均 ¥2401 → ¥3500（提升至 35-40% 占比）；
+      ② 配合下方 P0 词包重构同步推进，新增大盘热搜词包跑量；
+      ③ 复制本品已验证的搜索高 CTR 模板（如「do👄模板」搜索 CTR 14.2%）做更多搜索专属笔记。
+      <br><span class="tag tag-warn">预期效果</span> 日均搜索流水增量 ¥1000+，搜索场域留资成本可继续下探
+    </li>
+    <li class="priority-med">
+      <strong>🟡 P1 重要｜内容形式结构升级（视频翻倍）</strong><br>
+      4 个主体视频笔记产能从 31% → 50%+，目标月度新视频 40 篇。重点学习「深圳元气医疗美容」的视频爆款模式（妈生肉欲👄¥5.8w），把现有图文爆款改造成视频版本。
+      <br><span class="tag tag-info">主要主体</span> 医小森（仅 1/13 视频）、医小森元气（6/23 视频）需重点提升
+    </li>
+    <li class="priority-med">
+      <strong> P1 重要｜「live / 直出 / 真人案例」表达模板复用</strong><br>
+      本品已有「真人案例招募」内容，建议升级为「live 直出」表达形式（参考大盘 Top 50 高频模板），保持现有品项聚焦不变，仅升级笔记表达方式提升信任感和转化。
+    </li>
+    <li class="priority-med">
+      <strong>🟡 P1 重要｜私信配置补齐</strong><br>
+      ① 4 个主体全部接入「私信通AI助手」；
+      ② 医小森元气补齐欢迎语 + 特殊时段欢迎语；
+      ③ 医小森、花漾补齐特殊时段欢迎语。
+      <br><span class="tag tag-info">预期效果</span> 首响率提升 10-15%
+    </li>
+    <li>
+      <strong>🟢 P2 优化｜医小森元气 YX-2 + 医小森花漾 笔记池优化</strong><br>
+      笔记 ARPA 偏低（65元/47元），梳理在投笔记，淘汰低效笔记，提升健康度。
+    </li>
+    <li>
+      <strong> P2 优化｜留资量优化目标加大投放</strong><br>
+      留资量目标 CPL 476元 比开口量目标 613元 低 22%，建议将私信留资量占比从 42% → 55%。
+    </li>
+  </ul>
+</div>
+
+<div class="footer">
+  📊 数据来源：RedBI（创意宽表 11161 / 搜索词包 9195 / 私信效率 1060182 / 基建 49148496）<br>
+  🏥 合规说明：医美客户复盘已按合规规则处理 — 蒲公英 K 渠道静默剔除，闭环电商/小红星外溢/蒲公英不做建议<br>
+  ⏱️ 报告生成时间：2026-05-21 23:00 | 复盘周期：2026-03-01 ~ 2026-05-15（76 天）
+</div>
+
+</div>
+
+<script>
+// ========== 图表配置 ==========
+const baseGrid = {left:'3%',right:'4%',bottom:'8%',top:'15%',containLabel:true};
+const palette = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+const textColor = '#e2e8f0';
+const axisColor = '#94a3b8';
+const splitLineColor = 'rgba(148,163,184,0.1)';
+
+function getOption(o){
+  return Object.assign({
+    backgroundColor:'transparent',
+    textStyle:{color:textColor,fontFamily:'-apple-system,PingFang SC'},
+    tooltip:{backgroundColor:'rgba(15,35,71,0.95)',borderColor:'#3b82f6',textStyle:{color:'#fff'}},
+    legend:{textStyle:{color:textColor}, top:0},
+    grid:baseGrid,
+  }, o);
+}
+
+// 月度流水趋势
+echarts.init(document.getElementById('chart_trend')).setOption(getOption({
+  legend:{data:['本品日均流水（左）','大盘日均流水（右）'],textStyle:{color:textColor}},
+  xAxis:{type:'category',data:['2026-03','2026-04','2026-05'],axisLine:{lineStyle:{color:axisColor}}},
+  yAxis:[
+    {type:'value',name:'本品(元)',splitLine:{lineStyle:{color:splitLineColor}},axisLabel:{color:axisColor}},
+    {type:'value',name:'大盘(万元)',splitLine:{show:false},axisLabel:{color:axisColor,formatter:v=>(v/10000).toFixed(0)+'w'}}
+  ],
+  series:[
+    {name:'本品日均流水（左）',type:'bar',data:[9101,9626,9948],itemStyle:{color:palette[0]},barWidth:'30%',label:{show:true,position:'top',color:textColor,formatter:'¥{c}'}},
+    {name:'大盘日均流水（右）',type:'line',yAxisIndex:1,data:[3027983,3115854,3248101],itemStyle:{color:palette[1]},smooth:true,lineStyle:{width:3}}
+  ]
+}));
+
+// 留资成本
+echarts.init(document.getElementById('chart_cost')).setOption(getOption({
+  legend:{data:['本品留资成本','大盘留资成本']},
+  xAxis:{type:'category',data:['2026-03','2026-04','2026-05'],axisLine:{lineStyle:{color:axisColor}}},
+  yAxis:{type:'value',name:'元/留资',splitLine:{lineStyle:{color:splitLineColor}},axisLabel:{color:axisColor}},
+  series:[
+    {name:'本品留资成本',type:'line',data:[581,538,513],itemStyle:{color:palette[0]},lineStyle:{width:3},symbol:'circle',symbolSize:8,label:{show:true,color:textColor,formatter:'¥{c}'}},
+    {name:'大盘留资成本',type:'line',data:[380,406,423],itemStyle:{color:palette[2]},lineStyle:{width:3,type:'dashed'},symbol:'rect',symbolSize:8}
+  ]
+}));
+
+// 主体占比饼图
+echarts.init(document.getElementById('chart_subject')).setOption(getOption({
+  legend:{show:true,bottom:0,textStyle:{color:textColor}},
+  series:[{type:'pie',radius:['50%','75%'],
+    data:[
+      {value:303494,name:'医小森元气',itemStyle:{color:palette[0]}},
+      {value:186251,name:'医小森',itemStyle:{color:palette[1]}},
+      {value:148597,name:'深圳元气医疗美容',itemStyle:{color:palette[2]}},
+      {value:81771,name:'医小森花漾',itemStyle:{color:palette[3]}}],
+    label:{color:textColor,formatter:'{b}\n¥{c}'},
+    labelLine:{lineStyle:{color:axisColor}}
+  }]
+}));
+
+// 主体留资率 vs 成本
+echarts.init(document.getElementById('chart_subject_eff')).setOption(getOption({
+  legend:{data:['留资率(%)','留资成本(¥)']},
+  xAxis:{type:'category',data:['医小森元气','医小森','深圳元气医疗美容','医小森花漾'],axisLine:{lineStyle:{color:axisColor}},axisLabel:{color:axisColor,interval:0,rotate:0,fontSize:11}},
+  yAxis:[
+    {type:'value',name:'留资率(%)',axisLabel:{color:axisColor,formatter:'{value}%'},splitLine:{lineStyle:{color:splitLineColor}}},
+    {type:'value',name:'留资成本(¥)',axisLabel:{color:axisColor},splitLine:{show:false}}
+  ],
+  series:[
+    {name:'留资率(%)',type:'bar',data:[56.5,46.0,61.4,61.9],itemStyle:{color:palette[1]},barWidth:'30%',label:{show:true,position:'top',color:textColor,formatter:'{c}%'}},
+    {name:'留资成本(¥)',type:'line',yAxisIndex:1,data:[596.8,554.1,480.9,512.5],itemStyle:{color:palette[3]},lineStyle:{width:3},symbol:'circle',symbolSize:8}
+  ]
+}));
+
+// 场域分布
+echarts.init(document.getElementById('chart_field')).setOption(getOption({
+  legend:{data:['本品占比','大盘占比']},
+  xAxis:{type:'category',data:['信息流','搜索','视频内流'],axisLine:{lineStyle:{color:axisColor}}},
+  yAxis:{type:'value',name:'%',axisLabel:{color:axisColor,formatter:'{value}%'},splitLine:{lineStyle:{color:splitLineColor}}},
+  series:[
+    {name:'本品占比',type:'bar',data:[69.7,25.9,4.4],itemStyle:{color:palette[0]},barWidth:'30%',label:{show:true,position:'top',color:textColor,formatter:'{c}%'}},
+    {name:'大盘占比',type:'bar',data:[46.7,35.2,18.0],itemStyle:{color:palette[2]},barWidth:'30%',label:{show:true,position:'top',color:textColor,formatter:'{c}%'}}
+  ]
+}));
+
+// 内容形式
+echarts.init(document.getElementById('chart_form')).setOption(getOption({
+  legend:{data:['本品','大盘']},
+  xAxis:{type:'category',data:['图文笔记','视频笔记'],axisLine:{lineStyle:{color:axisColor}}},
+  yAxis:{type:'value',name:'%',axisLabel:{color:axisColor,formatter:'{value}%'},splitLine:{lineStyle:{color:splitLineColor}}},
+  series:[
+    {name:'本品',type:'bar',data:[69.4,30.6],itemStyle:{color:palette[0]},barWidth:'30%',label:{show:true,position:'top',color:textColor,formatter:'{c}%'}},
+    {name:'大盘',type:'bar',data:[33.8,66.2],itemStyle:{color:palette[1]},barWidth:'30%',label:{show:true,position:'top',color:textColor,formatter:'{c}%'}}
+  ]
+}));
+
+// 优化目标
+echarts.init(document.getElementById('chart_opt')).setOption(getOption({
+  series:[{type:'pie',radius:['40%','70%'],
+    data:[
+      {value:58.6,name:'私信开口量(CPL ¥613.5)',itemStyle:{color:palette[0]}},
+      {value:41.9,name:'私信留资量(CPL ¥476.5)',itemStyle:{color:palette[1]}}
+    ],
+    label:{color:textColor,formatter:'{b}\n{d}%'},
+    labelLine:{lineStyle:{color:axisColor}}
+  }]
+}));
+
+// 回复效率
+echarts.init(document.getElementById('chart_reply')).setOption(getOption({
+  legend:{data:['15s首响率','30s回复率','1h超时率']},
+  xAxis:{type:'category',data:['医小森元气','医小森','深圳元气医疗美容'],axisLine:{lineStyle:{color:axisColor}},axisLabel:{color:axisColor,fontSize:11}},
+  yAxis:{type:'value',name:'%',max:100,axisLabel:{color:axisColor,formatter:'{value}%'},splitLine:{lineStyle:{color:splitLineColor}}},
+  series:[
+    {name:'15s首响率',type:'bar',data:[78.4,79.9,88.5],itemStyle:{color:palette[1]},barWidth:'24%'},
+    {name:'30s回复率',type:'bar',data:[81.5,61.3,86.2],itemStyle:{color:palette[0]},barWidth:'24%'},
+    {name:'1h超时率',type:'bar',data:[3.6,15.9,3.3],itemStyle:{color:palette[3]},barWidth:'24%'}
+  ]
+}));
+
+// 回复时长 + 咨询分
+echarts.init(document.getElementById('chart_reply2')).setOption(getOption({
+  legend:{data:['平均回复时长(min)','咨询分']},
+  xAxis:{type:'category',data:['医小森元气','医小森','深圳元气医疗美容'],axisLine:{lineStyle:{color:axisColor}},axisLabel:{color:axisColor,fontSize:11}},
+  yAxis:[
+    {type:'value',name:'分钟',axisLabel:{color:axisColor},splitLine:{lineStyle:{color:splitLineColor}}},
+    {type:'value',name:'咨询分',max:5,axisLabel:{color:axisColor},splitLine:{show:false}}
+  ],
+  series:[
+    {name:'平均回复时长(min)',type:'bar',data:[7.48,27.51,8.63],itemStyle:{color:palette[3]},barWidth:'40%',label:{show:true,position:'top',color:textColor,formatter:'{c}min'}},
+    {name:'咨询分',type:'line',yAxisIndex:1,data:[4.0,3.2,3.4],itemStyle:{color:palette[1]},lineStyle:{width:3},symbol:'circle',symbolSize:10,label:{show:true,color:textColor,formatter:'{c}'}}
+  ]
+}));
+
+// 本品 Top 20 搜索词
+const selfWords = [
+  ['智能搭建词包(医小森花漾)',21135],['智能搭建词包(医小森)',18826],['香港onda钛提升',4838],['d5小记',1737],['12(花漾)',1595],
+  ['深圳丰唇',1529],['额头长痘',949],['do卧蚕',870],['Do唇',860],['广州郭晓东',774],
+  ['14',686],['深圳do唇',634],['广州do唇',604],['痘',542],['广州丰唇',539],
+  ['1ml玻尿酸丰唇',536],['12',502],['onda',474],['24岁文案生日',458],['2026新款美甲',452]
+];
+echarts.init(document.getElementById('chart_self_words')).setOption(getOption({
+  grid:{left:'3%',right:'8%',bottom:'3%',top:'8%',containLabel:true},
+  xAxis:{type:'value',axisLabel:{color:axisColor},splitLine:{lineStyle:{color:splitLineColor}}},
+  yAxis:{type:'category',data:selfWords.map(x=>x[0]).reverse(),axisLine:{lineStyle:{color:axisColor}},axisLabel:{color:axisColor,fontSize:10}},
+  series:[{type:'bar',data:selfWords.map(x=>x[1]).reverse(),itemStyle:{color:function(p){return p.dataIndex>=18?palette[3]:palette[0]}},label:{show:true,position:'right',color:textColor,formatter:'¥{c}'}}]
+}));
+
+// 笔记列表渲染
+function renderNotes(elId, items, idIndex) {
+  const el = document.getElementById(elId);
+  if(!el) return;
+  const html = items.slice(0,15).map((n,i)=>{
+    const account = n[0]||'';
+    const title = n[1]||'';
+    const form = n[2]||'';
+    const cost = n[3]||0;
+    const leads = idIndex===5 ? (n[4]||0) : null;
+    const id = n[idIndex]||'';
+    const url = id ? 'https://www.xiaohongshu.com/explore/'+id : '#';
+    const formCls = form==='视频笔记' ? 'form-video' : 'form-image';
+    const formLabel = form==='视频笔记' ? '🎬 视频' : ' 图文';
+    const costStr = cost>=10000 ? '¥'+(cost/10000).toFixed(1)+'w' : '¥'+cost.toFixed(0);
+    const leadStr = leads!==null ? '留资 '+leads : '';
+    return '<a class="note-item" href="'+url+'" target="_blank" rel="noopener">'+
+      '<div class="rank">#'+(i+1)+'</div>'+
+      '<div class="main"><div class="title">'+title.replace(/</g,'&lt;')+'</div>'+
+      '<div class="meta"><span class="tag">'+account+'</span><span class="'+formCls+'">'+formLabel+'</span></div></div>'+
+      '<div class="stat"><span class="cost">'+costStr+'</span>'+
+      (leadStr ? '<span class="lead">'+leadStr+'</span>' : '')+
+      '</div><div class="arrow">↗</div></a>';
+  }).join('');
+  el.innerHTML = html;
+}
+
+// 5 大品项数据
+const CAT_WORDS = {"cat1": [["Do嘴巴", 115507.0], ["唇形设计", 95524.0], ["do嘴巴杭州", 43877.0], ["微笑唇手术", 38990.0], ["上海嘴唇注射性价比", 36334.0], ["唇打玻尿酸可以管多久", 30849.0], ["嘴唇打玻尿酸痛吗", 27546.0], ["打唇用什么玻尿酸", 26002.0], ["杭州打嘴巴哪个医生好", 24403.0], ["幼态唇案例", 21449.0], ["娇兰和瑞蓝丰唇哪个好", 18756.0], ["丰唇牌子玻尿酸", 17598.0], ["口周囊袋做什么医美项目", 15708.0], ["小韩丰唇", 13760.0], ["沈阳丰唇", 13297.0], ["凸嘴下巴后缩医美", 13083.0], ["嘴角囊袋下垂打什么针", 12671.0], ["微笑唇", 11354.0], ["大连丰唇", 11346.0], ["嘴唇突出", 10736.0]], "cat2": [["乔雅登雅致卧蚕", 210669.0], ["卧蚕", 99156.0], ["打卧蚕疼不疼", 43997.0], ["卧蚕该怎么画", 43538.0], ["北京卧蚕注射", 20984.0], ["卧蚕注射前后对比", 16289.0], ["纯玻尿酸打卧蚕", 6918.0], ["上海卧蚕手术", 5818.0], ["上海卧蚕注射", 5357.0], ["长沙卧蚕", 4474.0], ["宁波卧蚕注射", 4062.0], ["妈生卧蚕注射", 3953.0], ["卧蚕手术深圳", 3633.0], ["卧蚕重塑手术", 2493.0], ["杭州卧蚕注射", 2436.0]], "cat3": [["眼周抗衰医生杨芳", 115094.0], ["轻医美抗衰", 96084.0], ["面部提升", 42267.0], ["上海面部提升", 32057.0], ["眼周抗衰项目有哪些", 26588.0], ["刘永红高级抗衰", 26066.0], ["深圳面部提升", 25916.0], ["面部提升攻略", 23621.0], ["王易彬的面部提升靠谱吗", 21848.0], ["轮廓抗衰针剂", 19723.0], ["口周抗衰做什么项目", 15061.0], ["杭州面部提升", 14105.0], ["眼周抗衰", 9494.0], ["25岁抗衰医美项目", 8782.0], ["北京面部提升", 8595.0], ["北京抗衰医生推荐", 8450.0], ["谷亦涵抗衰", 8002.0], ["提拉脸部医美项目", 7903.0], ["长沙面部提升", 6999.0], ["面部提升术", 6789.0]], "cat4": [["黄金微针攻略", 26918.0], ["mts和黄金微针的区别", 20347.0], ["黄金微针和点阵妊娠纹", 16861.0], ["黄金微针的功效", 16030.0], ["黄金微针搭配项目", 15179.0], ["陈婉秋黄金微针", 13595.0], ["新氧黄金微针", 12660.0], ["黄金微针4.0", 10982.0], ["成都黄金微针", 9584.0], ["黄金微针6代", 9437.0], ["成都黄金微针推荐哪个医生", 8720.0], ["微针生发", 6431.0], ["黄金微针搭配水光", 6399.0], ["美龄达黄金微针", 6126.0], ["黄金微针治疗妊娠纹", 6045.0], ["美迪迈黄金微针效果", 5219.0], ["济南黄金微针三甲医院推荐", 4614.0], ["半岛黄金微针国际版", 4551.0], ["黄金微针去痘印", 4534.0], ["陈婉秋黄金微针怎么样", 4436.0]], "cat5": [["onda瘦腿", 23452.0], ["onda韩国医院推荐", 11844.0], ["onda面部", 11621.0], ["杭州onda推荐", 9561.0], ["onda瘦大腿", 7993.0], ["杭州onda", 5465.0], ["onda深圳哪里有", 5392.0], ["香港onda钛提升", 4681.0], ["肽提升和onda", 4665.0], ["onda双下巴", 4642.0], ["北京onda cnp", 4363.0], ["onda", 4313.0], ["onda面部多久做一次", 4179.0], ["onda加钛提升", 4115.0], ["onda失败案例", 3672.0], ["广州曜铂onda", 3415.0], ["深圳onda推荐", 3353.0], ["onda+超声刀", 3121.0], ["onda做肚子效果", 2980.0], ["onda维持时间", 2946.0]]};
+
+const CAT_COLORS = {cat1:'#ec4899',cat2:'#8b5cf6',cat3:'#3b82f6',cat4:'#06b6d4',cat5:'#f59e0b'};
+
+// 5 大品项搜索词图表
+['cat1','cat2','cat3','cat4','cat5'].forEach(cat=>{
+  const data = CAT_WORDS[cat] || [];
+  echarts.init(document.getElementById('chart_'+cat+'_words')).setOption(getOption({
+    grid:{left:'3%',right:'10%',bottom:'3%',top:'8%',containLabel:true},
+    xAxis:{type:'value',axisLabel:{color:axisColor,formatter:v=>v>=10000?(v/10000).toFixed(1)+'w':v.toFixed(0)},splitLine:{lineStyle:{color:splitLineColor}}},
+    yAxis:{type:'category',data:data.map(x=>x[0]).reverse(),axisLine:{lineStyle:{color:axisColor}},axisLabel:{color:axisColor,fontSize:10}},
+    series:[{type:'bar',data:data.map(x=>x[1]).reverse(),itemStyle:{color:CAT_COLORS[cat]},label:{show:true,position:'right',color:textColor,formatter:p=>p.value>=10000?'¥'+(p.value/10000).toFixed(1)+'w':'¥'+p.value.toFixed(0)}}]
+  }));
+});
+
+// 笔记数据
+const CAT_NOTES = {"cat1": [["上海纽菲思医疗美容", "【实录】素人do鼻,1ml 拉出鼻唇角,即刻立体", "视频笔记", 64141.0, 148, ""], ["上海伊莱美抗衰美肤", "2026抗衰新纪元！30分钟口周提升拯救下垂脸", "视频笔记", 38280.0, 45, ""], ["时光轮廓美学", "纯欲嘟嘟唇|0.8ml 对标韩系唇✓", "视频笔记", 34976.0, 51, ""], ["上海纽菲思医疗美容", "嘴凸就打这里,改善鼻基底凹陷!", "视频笔记", 32338.0, 62, ""], ["上海清沁丨医疗美容", "疤痕原来这么容易消失！你们疤痕修复嘴真严", "视频笔记", 31709.0, 155, ""], ["REAL瑞欧真美颜究所", "动这部位 眼前一亮❕凸嘴弱化", "视频笔记", 29786.0, 110, ""], ["上海华美医疗美容", "干瘪唇变嘟嘟唇，0.5ml✅get纯欲初恋感～", "视频笔记", 29335.0, 22, ""], ["杭州维多利亚高定美学", "嘴凸自救！一针改善嘴凸、下巴后缩", "视频笔记", 26480.0, 21, ""], ["连天美抗衰中心", "口周衰老别在脸上填，口内提升不馒化！", "视频笔记", 24610.0, 19, ""], ["成华美理美学", "2步改善嘴凸｜90的人都是假性嘴凸", "视频笔记", 23533.0, 101, ""], ["今识理想医美", "当唇部细节足够细，每个人将有不同的风格感", "视频笔记", 22351.0, 39, ""], ["新丽美", "唇干瘪起皮❓乌唇❓试试超皮秒双模式", "视频笔记", 21850.0, 5, ""]], "cat2": [["颜净宜美", "三修双眼皮！7.5mm平扇+幼态卧蚕", "视频笔记", 29015.0, 216, ""], ["REAL瑞欧真美颜究所", "从今天开始 卧蚕自由❕", "视频笔记", 16104.0, 63, ""], ["臻颜美漾医疗美容", "卧蚕支架+自体肌肉折叠，宛如天生灵动自然！~", "视频笔记", 12955.0, 31, ""], ["杭州加颜医美", "重庆｜需要改善眼窝凹陷/卧蚕的进！", "图文笔记", 12381.0, 20, ""], ["颜净宜美", "快看！7.5mm狐系平扇➕幼态卧蚕 真的绝了😭", "视频笔记", 11749.0, 56, ""], ["济南美莲整形美容", "济南微调 | 小剂量丰泪沟+卧蚕~", "图文笔记", 9562.0, 55, ""], ["颜净", "上海双眼皮｜7.5mm平扇➕卧蚕好美啊～", "图文笔记", 8972.0, 64, ""], ["好医颜选医美", "广州卧蚕｜这也太甜了吧！！", "图文笔记", 8067.0, 19, ""], ["聚星ZOCI", "一篇了解什么是双弧支架卧蚕🔍", "视频笔记", 7953.0, 39, ""], ["颜选好医医疗美容机构", "卧蚕一出来，温柔感直接拉满", "视频笔记", 7856.0, 20, ""], ["新丽美", "卧蚕不对称，泪沟眼袋明显，如何恢复平整？", "视频笔记", 7536.0, 11, ""], ["瑞伽颜究所", "甜美天菜❗终于…终于爱死这个卧蚕了", "视频笔记", 7446.0, 44, ""]], "cat3": [["Dr.U博士医美", "青岛面部提升｜改善松垂垮打造皮贴骨高智脸", "视频笔记", 95611.0, 97, ""], ["杭州加颜医美", "🔥35+抗衰试试艾维岚7条韧带打法", "视频笔记", 92425.0, 82, ""], ["颜净宜美", "30岁垮脸❓❗紧致提升抗衰新思路～", "视频笔记", 88283.0, 350, ""], ["REAL瑞欧真美颜究所", "全网首发面部提升全过程‼️想做的先看看她", "视频笔记", 85468.0, 608, ""], ["颜净", "被闺蜜彻底种草了！！垮脸面部提升…", "视频笔记", 66893.0, 236, ""], ["颜净", "30+抗衰攻略，面部提升告别松垮下垂", "视频笔记", 64750.0, 175, ""], ["杭州时光", "半岛大超炮首发！真抗衰！📍杭州首台~", "图文笔记", 59598.0, 81, ""], ["颜净", "被闺蜜疯狂安利，逆袭变美还得是面部提升！", "视频笔记", 58647.0, 176, ""], ["智美年轻美学", "抗衰顶流天花板原来在这‼️我悟了", "视频笔记", 54816.0, 31, ""], ["颜净", "来上海做了个面部提升，直接换了个人...", "视频笔记", 48617.0, 185, ""], ["颜净", "上海！面部提升~彦直jue啦~", "视频笔记", 47566.0, 176, ""], ["成华美理美学", "童颜皮肉贴合✅8条韧带关键点❗❗️精准抗衰❗️", "视频笔记", 44738.0, 141, ""]], "cat4": [["今识理想医美", "黄金微针就用来祛痘平坑缩毛孔？你亏大了！", "视频笔记", 81314.0, 145, ""], ["成都铜雀台整形美容医院", "直击问题肌❗黑曜双波黄金微针3次卡特惠", "图文笔记", 43156.0, 67, ""], ["BR光电保养连锁", "🔥 BR黄金微针｜项目买3赠9，不限时使用❗️", "图文笔记", 39116.0, 41, ""], ["今识理想医美", "黄金微针只能祛痘祛毛孔？实测提升效果如何", "视频笔记", 34607.0, 50, ""], ["PAI美学", "油痘肌毛孔粗大📌黄金微针全面部进阶打法", "视频笔记", 31684.0, 31, ""], ["上海曼领医疗美容医院", "橡皮擦效果绝绝子！半岛黄金微针5.0", "图文笔记", 28968.0, 19, ""], ["兰州维多丽亚整形美容医院", "兰州黄金微针｜5🈷️宠粉价来啦👍", "图文笔记", 27466.0, 41, ""], ["今识理想医美", "大超炮...比黄金微针更歹毒的项目出现了", "视频笔记", 25565.0, 25, ""], ["上海曼领医疗美容医院", "怕痛？想要细腻奶油肌✨这款黄金微针闭眼入", "图文笔记", 22072.0, 17, ""], ["PAI美学", "油痘肌毛孔粗大📌黄金微针全面部进阶打法", "视频笔记", 21939.0, 24, ""], ["上海曼领医疗美容医院", "上海黄金微针5.0｜5🈷️宠粉价来啦👍", "图文笔记", 21007.0, 30, ""], ["上海伊莱美整形", "怕疼星人必看‼五代黄金微针，真舒适变美✔", "视频笔记", 19584.0, 26, ""]], "cat5": [["菲庭丨医疗美容", "小韩爆🔥第三代onda pro肉脸天菜❗️", "视频笔记", 21542.0, 122, ""], ["医小森", "爆火ONDA  pro 全身4xxx拿下", "图文笔记", 21241.0, 65, ""], ["璞裟医疗美容机构", "郑州onda🔥", "视频笔记", 20618.0, 54, ""], ["西安瑞碧特医疗美容", "Onda西安|碳水控有福了😉夏季肚肚躺平", "图文笔记", 19261.0, 121, ""], ["CHARMKEY呈美自然美学", "厦门Onda Pro｜年后开工福利不断🔥", "视频笔记", 18327.0, 136, ""], ["西安瑞碧特医疗美容", "三代onda pro 在西安✨", "图文笔记", 17898.0, 122, ""], ["CHARMKEY呈美自然美学", "Onda三代才是懒人变美的解药...", "图文笔记", 16080.0, 104, ""], ["DrHer宝藏医美", "北京Onda😭夏季吊带三件套太权威啦～", "图文笔记", 15790.0, 320, ""], ["西安颜即医美形体管理", "西安onda | 618特惠中✨...", "视频笔记", 15575.0, 74, ""], ["好医颜选医美", "第三代Onda pro 平均4xx 1part 能量不限！", "图文笔记", 13701.0, 38, ""], ["梦想丨医美严选", "在东莞做onda不选正规医院❓等着踩坑踩雷？", "图文笔记", 13076.0, 45, ""], ["自然原点-呈美", "厦门Onda Pro｜年后开工福利不断🔥", "视频笔记", 12650.0, 94, ""]]};
+
+const SELF_TOP_NOTES = [
+  ["深圳元气医疗美容","1ml打造妈生肉欲","视频笔记",57933,""],
+  ["医小森元气","深圳新年3位数get元气感❗","图文笔记",26487,""],
+  ["医小森","卷！娇兰专场仅需三位数","图文笔记",25107,""],
+  ["医小森元气","深圳面部提升抗衰性价比超夯！","图文笔记",22019,""],
+  ["医小森","爆火ONDA  pro 全身4xxx拿下","图文笔记",21241,""],
+  ["医小森元气","do👄模板|超NEW❗","图文笔记",11882,""],
+  ["医小森元气","面部提升松弛垮脸的抗衰思路","图文笔记",12043,""],
+  ["医小森","肉欲唇展示～唇形不用靠手挤","视频笔记",17539,""],
+  ["深圳元气医疗美容","深圳do👄记得先拿这300","图文笔记",15713,""],
+  ["医小森花漾","5月变美季｜这些医美项目真的值哭了","图文笔记",9073,""],
+  ["深圳元气医疗美容","深圳年前瑞蓝do👄优惠！","图文笔记",9243,""],
+  ["医小森元气","面部年轻化｜性价比之选","图文笔记",8521,""],
+  ["医小森花漾","模糊的画质 清晰的beauty👄","视频笔记",7860,""],
+  ["医小森","👄口周年轻态","图文笔记",7537,""],
+  ["深圳元气医疗美容","少女感满满的嘴巴，拿捏住你了吗？","视频笔记",6018,""]
+];
+
+// 5 大品项笔记渲染
+['cat1','cat2','cat3','cat4','cat5'].forEach(cat=>{
+  renderNotes('chart_'+cat+'_notes', CAT_NOTES[cat] || [], 5);
+});
+
+// 本品 Top 15 笔记渲染
+renderNotes('chart_self_notes_top', SELF_TOP_NOTES || [], 4);
+
+// 窗口 resize
+window.addEventListener('resize',()=>{
+  document.querySelectorAll('.chart').forEach(el=>{
+    const inst = echarts.getInstanceByDom(el);
+    if(inst) inst.resize();
+  });
+});
+</script>
+
+</body></html>
